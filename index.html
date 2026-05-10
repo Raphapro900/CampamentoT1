@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Undertale Style - Campamento RPG</title>
+    <title>Undertale · Campamento · Historia Interactiva</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
 
         body {
-            background: #000000;
+            background: radial-gradient(circle at 30% 20%, #0a0f1a, #020202);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,152 +25,106 @@
 
         @font-face {
             font-family: 'Determination';
-            src: url('https://github.com/cdn/fonts/determination.woff2') format('woff2'),
-                 url('https://githubusercontent.com/font.woff') format('woff');
+            src: url('https://fonts.cdnfonts.com/s/17018/DeterminationMonoWeb.woff') format('woff');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
         }
 
-        /* Pantallas base */
-        .screen {
-            position: absolute;
+        .game-wrapper {
             width: 100%;
             height: 100vh;
-            background: #000000;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            opacity: 1;
-            z-index: 10;
-            padding: 2rem;
+            background: #000000aa;
+            backdrop-filter: blur(3px);
         }
 
-        .screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .text-box {
-            background: #000000;
-            border: 3px solid #ffffff;
-            padding: 2rem 2.5rem;
-            max-width: 700px;
+        .dialog-panel {
+            background: #000000dd;
+            border: 4px solid #ffffff;
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            max-width: 850px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
-            margin-bottom: 2rem;
+            box-shadow: 0 0 40px rgba(255, 240, 150, 0.3);
+            transition: 0.2s;
         }
 
-        .dialogue-text {
-            color: #ffffff;
-            font-size: 1.9rem;
-            letter-spacing: 2px;
-            text-shadow: 0 0 5px #fff;
+        .dialog-text {
+            color: #f5f5f5;
+            font-size: 1.85rem;
             font-family: 'Determination', monospace;
-            min-height: 100px;
-            word-break: break-word;
+            letter-spacing: 1px;
+            text-shadow: 0 0 3px #fff9;
+            min-height: 130px;
             white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.4;
+            margin-bottom: 25px;
+        }
+
+        .input-zone {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         input {
-            background: #000;
+            background: #111;
             border: 2px solid #fff;
-            padding: 12px 20px;
-            font-size: 1.8rem;
+            padding: 14px 20px;
+            font-size: 1.7rem;
             font-family: 'Determination', monospace;
-            color: #ffff88;
+            color: #ffe484;
             text-align: center;
             outline: none;
             width: 280px;
-            margin-top: 20px;
-            letter-spacing: 1px;
+            border-radius: 60px;
         }
 
         input:focus {
-            border-color: #ffff88;
-            box-shadow: 0 0 12px #ffd966;
+            border-color: #ffcc55;
+            box-shadow: 0 0 15px #ffcc55;
         }
 
         button {
-            background: #000;
-            border: 2px solid #fff;
-            color: #fff;
+            background: #000000;
+            border: 2px solid #ffffff;
+            color: white;
             font-family: 'Determination', monospace;
             font-size: 1.5rem;
             padding: 10px 28px;
-            margin: 20px 12px;
+            margin: 8px 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 0 6px white;
+            border-radius: 60px;
+            transition: all 0.2s;
         }
 
         button:hover {
-            background: #fff;
-            color: #000;
+            background: #ffffff;
+            color: #000000;
             transform: scale(1.02);
-            border-color: #ffd966;
+            border-color: #ffdd88;
         }
 
-        .button-group {
+        .button-row {
             display: flex;
-            gap: 30px;
+            gap: 25px;
             justify-content: center;
-            margin-top: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
         }
 
-        .campamento-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 30% 20%, #1a3f2c, #031007);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .cartel {
-            background: #2c1e12;
-            border: 6px ridge #b87c4f;
-            padding: 18px 36px;
-            font-size: 3rem;
-            color: #f7e05e;
-            font-family: 'Determination', monospace;
-            text-shadow: 3px 3px 0 #4d2f14;
-            transform: rotate(-2deg);
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 70px;
-        }
-
-        .cartel:hover {
-            transform: scale(1.03) rotate(-1deg);
-            background: #3e2b1b;
-            box-shadow: 0 0 25px gold;
-        }
-
-        .player-character {
-            font-size: 5rem;
-            filter: drop-shadow(0 0 8px cyan);
-            animation: float 2s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* animacion de puntos en "Empezando..." */
-        .dot-animation::after {
+        .dot-loader::after {
             content: '';
-            animation: dotsAnim 1.5s steps(3, end) infinite;
+            animation: dotsAnim 1.2s steps(3, end) infinite;
             display: inline-block;
-            width: 1.2em;
+            width: 1.4em;
             text-align: left;
         }
 
@@ -182,484 +136,457 @@
             100% { content: ''; }
         }
 
-        /* zoom + rebote verde + cubic-bezier */
-        .carga-completa {
-            animation: zoomVerde 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        .zoom-green {
+            animation: bounceGreen 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
             display: inline-block;
-            color: #7cfc00 !important;
-            font-weight: bold;
+            color: #6eff6e !important;
+            text-shadow: 0 0 8px #00ff48;
         }
 
-        @keyframes zoomVerde {
-            0% {
-                transform: scale(0.9);
-                color: white;
-                text-shadow: 0 0 0px green;
-            }
-            50% {
-                transform: scale(1.3);
-                color: #b3ff7a;
-                text-shadow: 0 0 12px #00ff00;
-            }
-            100% {
-                transform: scale(1);
-                color: #5eff00;
-                text-shadow: 0 0 6px #2eff00;
-            }
+        @keyframes bounceGreen {
+            0% { transform: scale(0.9); color: white; }
+            60% { transform: scale(1.25); color: #bbff99; }
+            100% { transform: scale(1); color: #57ff57; }
         }
 
-        /* pantalla de blackout emergente beta */
-        .beta-overlay {
+        .beta-cinematic {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: black;
-            z-index: 200;
+            background: #000000f0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: all 0.5s ease;
+            z-index: 200;
             font-family: 'Determination', monospace;
-            text-align: center;
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            animation: vanishOverlay 3.5s forwards;
         }
 
-        .beta-text {
-            font-size: 2.5rem;
+        .beta-line1 {
+            font-size: 2.4rem;
             color: white;
-            margin-bottom: 20px;
-            animation: fadeUpOut 1.2s ease-out forwards;
+            text-align: center;
+            margin: 8px;
+            animation: riseUp 1s ease-out forwards;
         }
 
-        .beta-text span {
-            color: #ffcc33;
-            font-weight: bold;
-            text-shadow: 0 0 6px #ffaa33;
+        .beta-line1 span {
+            color: #ffcc44;
             font-size: 3rem;
+            text-shadow: 0 0 8px #ffaa33;
         }
 
-        .beta-second {
+        .beta-line2 {
             font-size: 2rem;
-            color: #dddddd;
-            margin-top: 10px;
-            animation: slideUpSecond 1s ease-out 0.8s forwards;
+            margin-top: 15px;
+            animation: appearLate 0.9s ease-out 0.7s forwards;
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(25px);
+            color: #dddddd;
         }
 
-        @keyframes fadeUpOut {
+        @keyframes riseUp {
             0% { opacity: 1; transform: translateY(0);}
-            70% { opacity: 1; transform: translateY(-15px);}
-            100% { opacity: 0; transform: translateY(-50px); visibility: hidden;}
+            80% { opacity: 1; transform: translateY(-28px);}
+            100% { opacity: 0; transform: translateY(-60px); visibility: hidden;}
         }
 
-        @keyframes slideUpSecond {
-            0% { opacity: 0; transform: translateY(30px);}
+        @keyframes appearLate {
+            0% { opacity: 0; transform: translateY(28px);}
             100% { opacity: 1; transform: translateY(0);}
         }
 
-        .hide-beta {
+        @keyframes vanishOverlay {
+            0% { opacity: 1; visibility: visible; }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; display: none; }
+        }
+
+        .hidden {
             display: none;
-        }
-
-        /* Canvas del juego */
-        .game-stage {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        /* pequeño footer */
-        .control-tip {
-            position: absolute;
-            bottom: 20px;
-            color: #aaa;
-            font-size: 0.8rem;
-            font-family: monospace;
-            background: #00000099;
-            padding: 4px 12px;
-            border-radius: 30px;
         }
     </style>
 </head>
 <body>
-
-<!-- Pantalla 0: Nombre + dialogo inicial -->
-<div id="nameScreen" class="screen">
-    <div class="text-box">
-        <div id="nameDialogue" class="dialogue-text"></div>
-        <input type="text" id="playerNameInput" placeholder="______" maxlength="14" autocomplete="off">
-        <div class="button-group">
-            <button id="confirmNameBtn" style="display: none;">Aceptar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Pantalla 1: confirmacion nombre "¿Estás seguro?" -->
-<div id="confirmScreen" class="screen hidden">
-    <div class="text-box">
-        <div id="confirmText" class="dialogue-text"></div>
-        <div class="button-group">
-            <button id="yesBtn">SÍ</button>
-            <button id="noBtn">NO</button>
-        </div>
-    </div>
-</div>
-
-<!-- Pantalla 2: "Empezando..." con animacion de puntos y carga -->
-<div id="loadingScreen" class="screen hidden">
-    <div class="text-box">
-        <div id="loadingMsg" class="dialogue-text" style="font-size: 2.4rem;">Empezando<span class="dot-animation"></span></div>
-    </div>
-</div>
-
-<!-- Pantalla 3: Juego principal (campamento + cartel) -->
-<div id="gameScreen" class="screen hidden">
-    <div class="campamento-container">
-        <div class="player-character">⭐</div>
-        <div id="campCartel" class="cartel">🏕️ ¡Campamentos!</div>
-        <div class="control-tip">[Pasa sobre el cartel]</div>
+<div class="game-wrapper" id="gameRoot">
+    <div class="dialog-panel" id="dialogPanel">
+        <div class="dialog-text" id="messageBox"></div>
+        <div id="inputArea" class="input-zone"></div>
     </div>
 </div>
 
 <script>
-    // ---------- SONIDO DE TEXTO (estilo undertale beep simple) ----------
-    class TextSound {
+    // ========== SONIDO DE TEXTO (beep undertale) ==========
+    class TextBeeper {
         constructor() {
             this.audioCtx = null;
-            this.enabled = true;
+            this.active = true;
             try {
                 this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            } catch(e) { console.warn("Web Audio no soportado"); this.enabled = false; }
+            } catch(e) { this.active = false; }
         }
-        // beep pequeñito estilo 8bits
-        playBeep() {
-            if (!this.enabled || !this.audioCtx) return;
-            // reanudar contexto si está suspendido
-            if (this.audioCtx.state === 'suspended') {
-                this.audioCtx.resume();
-            }
+        resume() {
+            if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        }
+        beep() {
+            if (!this.active || !this.audioCtx) return;
+            if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
             const osc = this.audioCtx.createOscillator();
             const gain = this.audioCtx.createGain();
             osc.connect(gain);
             gain.connect(this.audioCtx.destination);
             osc.type = 'square';
-            osc.frequency.value = 880; // tono agudo pero suave
-            gain.gain.value = 0.12;
+            osc.frequency.value = 880;
+            gain.gain.value = 0.09;
             osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, this.audioCtx.currentTime + 0.12);
-            osc.stop(this.audioCtx.currentTime + 0.1);
-        }
-        // Para cada caracter escribiendo
-        beepChar() {
-            this.playBeep();
-        }
-        // reiniciar contexto si es necesario (por interacción usuario)
-        resumeAudio() {
-            if (this.audioCtx && this.audioCtx.state === 'suspended') {
-                this.audioCtx.resume();
-            }
+            gain.gain.exponentialRampToValueAtTime(0.00001, this.audioCtx.currentTime + 0.1);
+            osc.stop(this.audioCtx.currentTime + 0.09);
         }
     }
+    const soundFx = new TextBeeper();
 
-    const textSound = new TextSound();
-
-    // Helper: escribir texto letra por letra con sonidito
-    async function typeWriter(element, text, speed = 45, soundEnabled = true) {
+    // Typwriter con sonido
+    async function writeMessage(element, text, speed = 45, soundOn = true) {
         element.textContent = '';
         for (let i = 0; i < text.length; i++) {
             element.textContent += text[i];
-            if (soundEnabled && textSound) textSound.beepChar();
+            if (soundOn && soundFx) soundFx.beep();
             await new Promise(r => setTimeout(r, speed));
         }
         return true;
     }
 
-    // Variables globales
-    let currentPlayerName = "";
-    let loadingInterval = null;
-    let loadingCounter = 0;
-    let betaOverlay = null;
+    // UI Elements
+    const msgDiv = document.getElementById("messageBox");
+    const inputZone = document.getElementById("inputArea");
 
-    // Elementos
-    const nameScreen = document.getElementById('nameScreen');
-    const confirmScreen = document.getElementById('confirmScreen');
-    const loadingScreen = document.getElementById('loadingScreen');
-    const gameScreen = document.getElementById('gameScreen');
-    const nameDialogueDiv = document.getElementById('nameDialogue');
-    const playerNameInput = document.getElementById('playerNameInput');
-    const confirmNameBtn = document.getElementById('confirmNameBtn');
-    const confirmTextDiv = document.getElementById('confirmText');
-    const yesBtn = document.getElementById('yesBtn');
-    const noBtn = document.getElementById('noBtn');
-    const loadingMsgDiv = document.getElementById('loadingMsg');
-    const campCartel = document.getElementById('campCartel');
-
-    // flujo de diálogos iniciales
-    let dialogueIndex = 0;
-    const dialogues = [
-        "Hola, Jugador.",
-        "Todavía no sé tu nombre...",
-        "Escribe tu nombre en el teclado"
-    ];
-
-    async function startNameSequence() {
-        // mostrar secuencia de textos
-        for (let i = 0; i < dialogues.length; i++) {
-            await typeWriter(nameDialogueDiv, dialogues[i], 48, true);
-            if (i < dialogues.length - 1) await new Promise(r => setTimeout(r, 400));
-        }
-        // mostrar input y boton
-        playerNameInput.style.display = "inline-block";
-        confirmNameBtn.style.display = "inline-block";
-        playerNameInput.value = "";
-        playerNameInput.focus();
-        // habilitar audio al hacer click
-        const resumeAudioHandler = () => {
-            textSound.resumeAudio();
-            document.removeEventListener('click', resumeAudioHandler);
-        };
-        document.addEventListener('click', resumeAudioHandler);
+    function clearInputZone() {
+        inputZone.innerHTML = "";
     }
 
-    // Llamar al secuencia
-    startNameSequence();
-
-    // Botón confirmar nombre (cuando escribe)
-    confirmNameBtn.addEventListener('click', () => {
-        let rawName = playerNameInput.value.trim();
-        if (rawName === "") {
-            rawName = "Héroe";
-        }
-        currentPlayerName = rawName;
-        // pasar a pantalla de confirmación
-        nameScreen.classList.add('hidden');
-        confirmScreen.classList.remove('hidden');
-        // mostrar mensaje con nombre
-        const confirmMsg = `¿Estás seguro de que ${currentPlayerName} va a ser tu nombre en el juego?`;
-        typeWriter(confirmTextDiv, confirmMsg, 45, true);
-    });
-
-    // También al presionar Enter en input
-    playerNameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            confirmNameBtn.click();
-        }
-    });
-
-    // Botón SÍ
-    yesBtn.addEventListener('click', async () => {
-        textSound.resumeAudio();
-        confirmScreen.classList.add('hidden');
-        loadingScreen.classList.remove('hidden');
-        // empezar animacion de puntos
-        await startLoadingAnimation();
-    });
-
-    // Botón No: regresa a pantalla de nombre
-    noBtn.addEventListener('click', async () => {
-        textSound.resumeAudio();
-        confirmScreen.classList.add('hidden');
-        nameScreen.classList.remove('hidden');
-        // reiniciar texto y mostrar input nuevamente
-        await typeWriter(nameDialogueDiv, "Escribe tu nombre en el teclado", 40, true);
-        playerNameInput.style.display = "inline-block";
-        confirmNameBtn.style.display = "inline-block";
-        playerNameInput.value = "";
-        playerNameInput.focus();
-    });
-
-    // Animación de carga: Empezando. -> Empezando.. -> Empezando... cíclico hasta carga completa
-    async function startLoadingAnimation() {
-        loadingCounter = 0;
-        const baseText = "Empezando";
-        const maxDots = 3;
-        // removemos cualquier contenido extra
-        loadingMsgDiv.innerHTML = "";
-        // función para actualizar puntos
-        function updateLoadingDots() {
-            let dots = ".".repeat(loadingCounter % (maxDots+1));
-            loadingMsgDiv.innerHTML = `${baseText}${dots}`;
-            loadingCounter++;
-        }
-        updateLoadingDots();
-        loadingInterval = setInterval(() => {
-            updateLoadingDots();
-        }, 500);
-
-        // simulamos carga completa despues de 3.8 segundos (efecto dramatico)
-        await new Promise(resolve => setTimeout(resolve, 3800));
-        clearInterval(loadingInterval);
-        // texto final: "Carga completa" con animación de rebote verde + cubic-bezier
-        loadingMsgDiv.innerHTML = "Carga completa";
-        // aplicamos clase de animación zoom + verde + cubic
-        loadingMsgDiv.classList.add('carga-completa');
-        await new Promise(r => setTimeout(r, 800));
-        // ocultar loading, mostrar juego campamento
-        loadingScreen.classList.add('hidden');
-        gameScreen.classList.remove('hidden');
-        // activar evento cartel (touch / click)
-        setupCampInteraction();
+    // Mostrar mensaje normal (auto-siguiente)
+    async function showMsg(text, autoNext = true, delay = 750) {
+        clearInputZone();
+        await writeMessage(msgDiv, text, 43, true);
+        if (autoNext) await new Promise(r => setTimeout(r, delay));
+        return true;
     }
 
-    // Lógica del cartel y beta
-    function setupCampInteraction() {
-        // Aseguramos que el cartel esté visible y manejar interaccion
-        const cartelDiv = document.getElementById('campCartel');
-        if (!cartelDiv) return;
+    // Mostrar mensaje con botones Sí / No
+    async function showChoice(message, onYes, onNo) {
+        clearInputZone();
+        await writeMessage(msgDiv, message, 45, true);
+        const btnGroup = document.createElement("div");
+        btnGroup.className = "button-row";
+        const yesBtn = document.createElement("button");
+        yesBtn.textContent = "SÍ";
+        const noBtn = document.createElement("button");
+        noBtn.textContent = "NO";
+        btnGroup.appendChild(yesBtn);
+        btnGroup.appendChild(noBtn);
+        inputZone.appendChild(btnGroup);
         
-        const triggerBetaSequence = () => {
-            // Crear overlay negro con textos animados estilo undertale
-            if (document.querySelector('.beta-overlay')) return;
-            const overlay = document.createElement('div');
-            overlay.className = 'beta-overlay';
-            overlay.innerHTML = `
-                <div class="beta-text">Este juego está en fase <span>Beta</span></div>
-                <div class="beta-second">La versión completa pronto</div>
-            `;
-            document.body.appendChild(overlay);
-            // después de terminar animaciones, retirar overlay gradualmente y desaparecer
-            setTimeout(() => {
-                if (overlay) {
-                    overlay.style.opacity = '0';
-                    setTimeout(() => {
-                        if (overlay && overlay.remove) overlay.remove();
-                    }, 800);
+        const handlerYes = () => {
+            soundFx.beep();
+            clearInputZone();
+            yesBtn.removeEventListener("click", handlerYes);
+            noBtn.removeEventListener("click", handlerNo);
+            onYes();
+        };
+        const handlerNo = () => {
+            soundFx.beep();
+            clearInputZone();
+            yesBtn.removeEventListener("click", handlerYes);
+            noBtn.removeEventListener("click", handlerNo);
+            onNo();
+        };
+        yesBtn.addEventListener("click", handlerYes);
+        noBtn.addEventListener("click", handlerNo);
+    }
+
+    // Input para escribir nombre
+    async function askName(promptText, callback) {
+        clearInputZone();
+        await writeMessage(msgDiv, promptText, 48, true);
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.maxLength = 14;
+        nameInput.autocomplete = "off";
+        nameInput.placeholder = "...";
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "Aceptar";
+        inputZone.appendChild(nameInput);
+        inputZone.appendChild(submitBtn);
+        nameInput.focus();
+        const finish = () => {
+            let val = nameInput.value.trim();
+            if (val === "") val = "Viajero";
+            soundFx.beep();
+            clearInputZone();
+            callback(val);
+        };
+        submitBtn.onclick = finish;
+        nameInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") finish();
+        });
+    }
+
+    // animación de carga: "Empezando..." + "Carga completa" verde
+    async function loadingSequence() {
+        clearInputZone();
+        let dots = 0;
+        msgDiv.innerHTML = "Empezando";
+        const interval = setInterval(() => {
+            dots = (dots + 1) % 4;
+            let dotStr = ".".repeat(dots);
+            msgDiv.innerHTML = `Empezando${dotStr}`;
+        }, 450);
+        await new Promise(r => setTimeout(r, 2800));
+        clearInterval(interval);
+        msgDiv.innerHTML = "Carga completa";
+        msgDiv.classList.add("zoom-green");
+        await new Promise(r => setTimeout(r, 650));
+        msgDiv.classList.remove("zoom-green");
+        await new Promise(r => setTimeout(r, 250));
+    }
+
+    // Pantalla de "Beta" animada estilo Undertale
+    function displayBetaMessage() {
+        if (document.querySelector(".beta-cinematic")) return;
+        const overlay = document.createElement("div");
+        overlay.className = "beta-cinematic";
+        overlay.innerHTML = `
+            <div class="beta-line1">Este juego está en fase <span>Beta</span></div>
+            <div class="beta-line2">La versión completa pronto</div>
+        `;
+        document.body.appendChild(overlay);
+        setTimeout(() => {
+            if (overlay && overlay.remove) overlay.remove();
+        }, 3600);
+    }
+
+    // ================ ALMACENAMIENTO LOCAL PARA NOMBRE Y FECHAS ================
+    function savePlayerData(name, dateStr) {
+        localStorage.setItem("camp_nombre", JSON.stringify({ nombre: name, fecha: dateStr }));
+        localStorage.setItem("camp_fecha_mem", dateStr);
+    }
+    function getStoredNameData() {
+        const raw = localStorage.getItem("camp_nombre");
+        if (raw) {
+            try { return JSON.parse(raw); } catch(e) { return null; }
+        }
+        return null;
+    }
+    function getMemoryDate() {
+        return localStorage.getItem("camp_fecha_mem");
+    }
+    function setMemoryDate(date) {
+        localStorage.setItem("camp_fecha_mem", date);
+    }
+
+    // ==================== JUEGO PRINCIPAL (historia de fogata, serpientes, osos) ====================
+    let currentPlayer = "";
+    let retryAttempt = false;
+
+    async function startGameStory() {
+        // 1. Bienvenida y manejo de nombre estilo "campamento"
+        const stored = getStoredNameData();
+        const today = new Date().toLocaleString();
+        
+        if (stored && stored.nombre) {
+            const fechaGuardada = stored.fecha;
+            const fechaMemoria = getMemoryDate();
+            if (fechaGuardada === fechaMemoria && fechaMemoria !== null) {
+                currentPlayer = stored.nombre;
+                await showMsg(`Hola ${currentPlayer} volviste`, true, 850);
+            } else {
+                currentPlayer = stored.nombre;
+                await showMsg("Oye...", true, 700);
+                await showMsg("¿Por qué tu fecha de nombre es distinta a la que recuerdo?", true, 950);
+                await showMsg("¿Viajas en el pasado o en el futuro?", true, 900);
+                await showMsg("O tal vez lo cambiaste...", true, 800);
+                await showMsg(`Bueno ${currentPlayer}, qué importa, sigamos`, true, 850);
+                await showMsg(`Hola ${currentPlayer}, un gusto en conocerte.`, true, 900);
+            }
+        } else {
+            // Primera vez: pedir nombre
+            await new Promise(resolve => {
+                askName("Escribe tu nombre en el teclado", async (nombre) => {
+                    currentPlayer = nombre;
+                    await showMsg(`Te llamarás ${currentPlayer}`, true, 750);
+                    const nowDate = new Date().toLocaleString();
+                    savePlayerData(currentPlayer, nowDate);
+                    setMemoryDate(nowDate);
+                    await showMsg(`Hola ${currentPlayer}, un gusto en conocerte.`, true, 900);
+                    resolve();
+                });
+            });
+        }
+        
+        // 2. Continuación de la historia del campamento (sin IP ni links)
+        await showMsg("Ahora todo está listo...", true, 700);
+        await showMsg("Ven. Hagamos tu primera fogata.", true, 850);
+        await showMsg("*Encienden una hermosa fogata crepitante*", true, 1200);
+        await showMsg("Que bonito...", true, 800);
+        await showMsg("Espera... ¡APAGA LA FOGATA!", true, 900);
+        await showMsg("¡Rápido, hay una fuga de gas! ¡APAGA ESA FOGATA!", true, 1000);
+        await showMsg("*Intentas apagar las llamas...*", true, 950);
+        await showMsg("*De repente... una explosión te deja inconsciente...*", true, 1400);
+        await showMsg("...", true, 800);
+        await showMsg("Despierta", true, 700);
+        await showMsg("¡DESPIERTA!", true, 700);
+        await showMsg("*suspiro* Por fin despertaste.", true, 850);
+        await showMsg("Esa fogata no salió tan bien.", true, 900);
+        await showMsg("Lo haremos mañana.", true, 800);
+        await showMsg("*Escuchas un sonido raro... algo se arrastra*", true, 1100);
+        await showMsg("Ey, ¿escuchaste eso?", true, 800);
+        await showMsg("¡SON SERPIENTES!", true, 800);
+        await showMsg("¡Muchas serpientes venenosas! ¡ESCONDETE!", true, 950);
+        await showMsg("¡CORRE!", true, 600);
+        
+        // Secuencia de escape con serpientes, osos, reintentos
+        let caught = false;
+        let retryLoop = false;
+        
+        do {
+            caught = false;
+            await showMsg("Procedes a correr desesperadamente...", true, 900);
+            await showMsg("Pero de repente aparecen osos salvajes también.", true, 1000);
+            
+            const frasesEscape = [
+                "Presiona ACEPTAR para correr más rápido",
+                "¡MÁS RÁPIDO!",
+                "¡COMO SI NO HUBIERA UN MAÑANA!",
+                "¡NO TE RINDAS!",
+                "¡MÁS, AHHH!"
+            ];
+            
+            let cancelPressed = false;
+            for (let i = 0; i < frasesEscape.length; i++) {
+                let userChoice = false;
+                await new Promise(async (resolve) => {
+                    // mostramos botones OK y Cancelar en cada paso
+                    clearInputZone();
+                    await writeMessage(msgDiv, frasesEscape[i], 45, true);
+                    const btnGroup = document.createElement("div");
+                    btnGroup.className = "button-row";
+                    const okBtn = document.createElement("button");
+                    okBtn.textContent = "⚡ CORRER ⚡";
+                    const cancelBtn = document.createElement("button");
+                    cancelBtn.textContent = "✋ RENDIRSE";
+                    btnGroup.appendChild(okBtn);
+                    btnGroup.appendChild(cancelBtn);
+                    inputZone.appendChild(btnGroup);
+                    
+                    const onOk = () => {
+                        soundFx.beep();
+                        clearInputZone();
+                        userChoice = true;
+                        cancelPressed = false;
+                        resolve();
+                    };
+                    const onCancel = () => {
+                        soundFx.beep();
+                        clearInputZone();
+                        cancelPressed = true;
+                        userChoice = false;
+                        resolve();
+                    };
+                    okBtn.onclick = onOk;
+                    cancelBtn.onclick = onCancel;
+                });
+                if (cancelPressed) {
+                    caught = true;
+                    break;
                 }
-            }, 3200);
-        };
+                await new Promise(r => setTimeout(r, 500));
+            }
+            
+            if (caught) {
+                await showMsg("Te atrapan las criaturas... todo se vuelve oscuro...", true, 1100);
+                await showMsg("💀 Has quedado derrotado... 💀", true, 1000);
+                let wantRetry = false;
+                await new Promise(resolve => {
+                    showChoice("¿Quieres reintentar y escapar?", async () => {
+                        wantRetry = true;
+                        await showMsg("Reintentando... ¡Esta vez lo lograrás!", true, 900);
+                        resolve();
+                    }, async () => {
+                        wantRetry = false;
+                        await showMsg("La historia se detiene aquí...", true, 800);
+                        resolve();
+                    });
+                });
+                if (!wantRetry) {
+                    await showMsg("FIN. (Recarga la página para jugar de nuevo)", true, 2000);
+                    return;
+                } else {
+                    retryLoop = true;
+                    continue;
+                }
+            } else {
+                // escapó con éxito
+                await showMsg("¡Lograste escapar de las serpientes y los osos!", true, 1000);
+                await showMsg("Sales del bosque y llegas a un claro iluminado por la luna.", true, 1100);
+                await showMsg("Continuará...", true, 900);
+                displayBetaMessage();   // Mensaje Beta al final
+                await showMsg("Por ahora la aventura queda aquí.", true, 1100);
+                await showMsg("Gracias por jugar, " + currentPlayer + ".", true, 1200);
+                break;
+            }
+        } while (retryLoop);
+    }
+    
+    // ==================== INICIO OFICIAL DEL JUEGO ====================
+    async function mainInit() {
+        // Secuencia inicial: diálogos iniciales (Hola jugador, nombre, etc)
+        await writeMessage(msgDiv, "Hola, Jugador.", 48, true);
+        await new Promise(r => setTimeout(r, 700));
+        await writeMessage(msgDiv, "Todavía no sé tu nombre...", 48, true);
+        await new Promise(r => setTimeout(r, 700));
+        await writeMessage(msgDiv, "Escribe tu nombre en el teclado", 48, true);
+        await new Promise(r => setTimeout(r, 600));
         
-        // Eliminar listeners anteriores para evitar duplicados
-        const newCartel = cartelDiv.cloneNode(true);
-        cartelDiv.parentNode.replaceChild(newCartel, cartelDiv);
-        window.campCartelActive = newCartel;
-        newCartel.addEventListener('click', (e) => {
-            e.stopPropagation();
-            textSound.resumeAudio();
-            triggerBetaSequence();
+        // Llamar al sistema de nombre
+        await new Promise(resolve => {
+            askName("", async (nombre) => {
+                currentPlayer = nombre;
+                await showMsg(`"${currentPlayer}"`, true, 500);
+                await showChoice(`¿Estás seguro de que ${currentPlayer} va a ser tu nombre en el juego?`, 
+                    async () => {
+                        await showMsg("Empezando...", false);
+                        await loadingSequence();
+                        await startGameStory();
+                        resolve();
+                    }, 
+                    async () => {
+                        // reiniciar flujo de nombre
+                        await writeMessage(msgDiv, "Entonces, escribe de nuevo tu nombre.", 48, true);
+                        await new Promise(resolveName => {
+                            askName("", async (newName) => {
+                                currentPlayer = newName;
+                                await showMsg(`Perfecto, ahora eres ${currentPlayer}`, true, 700);
+                                await showMsg("Empezando...", false);
+                                await loadingSequence();
+                                await startGameStory();
+                                resolveName();
+                                resolve();
+                            });
+                        });
+                    }
+                );
+            });
         });
-        newCartel.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            textSound.resumeAudio();
-            triggerBetaSequence();
-        });
-        // cursor
-        newCartel.style.cursor = 'pointer';
-    }
-
-    // Prevención de scroll y toques adicionales
-    document.body.addEventListener('touchmove', (e) => {
-        // evita scroll en pantallas de juego pero no rompe inputs
-        if (gameScreen && !gameScreen.classList.contains('hidden')) {
-            // permitir solo si es necesario
-        }
-    });
-    
-    // configurar ese pequeño sonido en interacciones y al hacer click global reanudar audio
-    function globalResumeAudio() {
-        if (textSound.audioCtx && textSound.audioCtx.state === 'suspended') {
-            textSound.resumeAudio();
-        }
-    }
-    document.body.addEventListener('click', globalResumeAudio);
-    document.body.addEventListener('keydown', () => textSound.resumeAudio());
-    
-    // Bonus: si el input aparece, aseguramos que el sonido también se active
-    playerNameInput.addEventListener('focus', () => {
-        textSound.resumeAudio();
-    });
-    // Pequeño pulido para que en confirmacion tambien haya sonido al seleccionar botones
-    yesBtn.addEventListener('mouseenter', () => textSound.beepChar());
-    noBtn.addEventListener('mouseenter', () => textSound.beepChar());
-    confirmNameBtn.addEventListener('mouseenter', () => textSound.beepChar());
-    
-    // Por si la pantalla de carga se queda colgada inesperadamente pero no
-    window.addEventListener('load', () => {
-        // Preload fonts (no necesario realmente)
-        textSound.resumeAudio();
-    });
-    
-    // Ajustar detalle: Cuando se muestra la pantalla del juego y pasas el cartel aparece beta.
-    // Además la animación de "Carga completa" ya está hecha.
-    // Para simular un estilo robusto, agregamos que si el jugador presiona SÍ repetidamente no rompa.
-    let isLoadingActive = false;
-    const originalYesClick = yesBtn.onclick;
-    yesBtn.addEventListener('click', () => {
-        if (isLoadingActive) return;
-        isLoadingActive = true;
-        setTimeout(() => { isLoadingActive = false; }, 5000);
-    });
-    
-    // efecto adicional: el personaje en campamento tiene una burbuja? pero bien.
-    // Control de error en animate points.
-    // Versión completa: texto beta sube y aparece segundo texto "La versión completa pronto"
-    // Aseguramos que los textos beta tengan animación subir hacia arriba y aparecer otro.
-    // El CSS ya tiene esos keyframes precisos: fadeUpOut para primero y slideUpSecond para segundo.
-    // perfecto.
-    
-    // Al pasar sobre cartel además tener hover (ya con css)
-    // Pequeño añadido para reaccionar si se quiere un sonido extra al ver beta
-    function subtleBetaBeep() {
-        textSound.playBeep();
     }
     
-    // Extendemos triggerBetaSequence para agregar un pequeño beep
-    const origFunc = setupCampInteraction;
-    // mejor redefinimos la función triggerBeta sequence con sonido adicional
-    // Pero ya existe, modificamos la función despues de creada?
-    // Vamos a parchear al momento del setup final.
-    const patchBetaSound = () => {
-        const originalTrigger = window.triggerBeta;
-        if (!window.triggerBeta) {
-            // definimos globalmente
-        }
-    };
-    // mejor capturamos el evento del cartel cuando lo creamos finalmente
-    // Dentro del setupCampInteraction podemos añadir un beep al hacer click
-    const originalSetup = setupCampInteraction;
-    window.setupCampInteraction = function() {
-        const cartel = document.getElementById('campCartel');
-        if(!cartel) return;
-        const newCartel = cartel.cloneNode(true);
-        cartel.parentNode.replaceChild(newCartel, cartel);
-        newCartel.addEventListener('click', (e) => {
-            e.stopPropagation();
-            textSound.resumeAudio();
-            textSound.playBeep(); // beep adicional
-            // crear overlay beta
-            if (document.querySelector('.beta-overlay')) return;
-            const overlayDiv = document.createElement('div');
-            overlayDiv.className = 'beta-overlay';
-            overlayDiv.innerHTML = `
-                <div class="beta-text">Este juego está en fase <span>Beta</span></div>
-                <div class="beta-second">La versión completa pronto</div>
-            `;
-            document.body.appendChild(overlayDiv);
-            setTimeout(() => {
-                if (overlayDiv) overlayDiv.style.opacity = '0';
-                setTimeout(() => { if(overlayDiv && overlayDiv.remove) overlayDiv.remove(); }, 700);
-            }, 3000);
-        });
-        newCartel.style.cursor = 'pointer';
-    };
-    // ejecutar despues que gameScreen sea visible
-    const observer = new MutationObserver(() => {
-        if (!gameScreen.classList.contains('hidden')) {
-            window.setupCampInteraction();
-            observer.disconnect();
-        }
-    });
-    observer.observe(gameScreen, { attributes: true, attributeFilter: ['class'] });
-    // fallback si ya está visible
-    if (!gameScreen.classList.contains('hidden')) {
-        window.setupCampInteraction();
-        observer.disconnect();
-    }
-    // Corrección: Para mantener la integridad también evitar que se acumule beta overlay
-    console.log("Juego estilo Undertale listo — Sonido de texto y animaciones.");
+    // Arrancar juego con posibilidad de resetear audio y evitar bloqueos
+    document.body.addEventListener("click", () => { if(soundFx) soundFx.resume(); });
+    mainInit();
 </script>
 </body>
 </html>
