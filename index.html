@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Undertale · Campamento · Historia Interactiva</title>
+    <title>Undertale · Campamento · La Historia del VBS</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
 
         body {
-            background: radial-gradient(circle at 30% 20%, #0a0f1a, #020202);
+            background: #000000;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -31,104 +31,105 @@
             font-display: swap;
         }
 
-        .game-wrapper {
-            width: 100%;
+        .game-container {
+            position: relative;
+            width: 100vw;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #000000aa;
-            backdrop-filter: blur(3px);
+            overflow: hidden;
+            background: #050810;
         }
 
-        .dialog-panel {
-            background: #000000dd;
-            border: 4px solid #ffffff;
-            border-radius: 32px;
-            padding: 2rem 2.2rem;
-            max-width: 850px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(255, 240, 150, 0.3);
-            transition: 0.2s;
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
         }
 
-        .dialog-text {
-            color: #f5f5f5;
-            font-size: 1.85rem;
-            font-family: 'Determination', monospace;
-            letter-spacing: 1px;
-            text-shadow: 0 0 3px #fff9;
-            min-height: 130px;
-            white-space: pre-wrap;
-            word-break: break-word;
-            line-height: 1.4;
-            margin-bottom: 25px;
-        }
-
-        .input-zone {
-            margin-top: 20px;
+        .title-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 300;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 20px;
+            transition: opacity 1.2s ease;
         }
 
-        input {
+        .title-box {
+            background: #000000dd;
+            border: 3px solid #ffffff;
+            padding: 2rem;
+            max-width: 600px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255,255,200,0.2);
+        }
+
+        .title-text {
+            color: white;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            font-family: 'Determination', monospace;
+        }
+
+        .title-input {
             background: #111;
             border: 2px solid #fff;
-            padding: 14px 20px;
-            font-size: 1.7rem;
+            padding: 12px 20px;
+            font-size: 1.6rem;
             font-family: 'Determination', monospace;
-            color: #ffe484;
+            color: #ffff88;
             text-align: center;
             outline: none;
-            width: 280px;
-            border-radius: 60px;
+            width: 260px;
+            border-radius: 40px;
+            margin: 15px 0;
         }
 
-        input:focus {
-            border-color: #ffcc55;
-            box-shadow: 0 0 15px #ffcc55;
-        }
-
-        button {
-            background: #000000;
-            border: 2px solid #ffffff;
+        .title-btn {
+            background: #000;
+            border: 2px solid #fff;
             color: white;
             font-family: 'Determination', monospace;
-            font-size: 1.5rem;
-            padding: 10px 28px;
-            margin: 8px 12px;
+            font-size: 1.3rem;
+            padding: 8px 28px;
             cursor: pointer;
-            border-radius: 60px;
-            transition: all 0.2s;
+            border-radius: 40px;
+            transition: 0.2s;
+            margin-top: 10px;
         }
 
-        button:hover {
-            background: #ffffff;
-            color: #000000;
-            transform: scale(1.02);
-            border-color: #ffdd88;
+        .title-btn:hover {
+            background: white;
+            color: black;
         }
 
-        .button-row {
-            display: flex;
-            gap: 25px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
+        .loading-indicator {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            color: #aaa;
+            font-family: 'Determination', monospace;
         }
 
-        .dot-loader::after {
+        .dot-animation::after {
             content: '';
-            animation: dotsAnim 1.2s steps(3, end) infinite;
+            animation: dotsLoad 1s steps(3, end) infinite;
             display: inline-block;
-            width: 1.4em;
-            text-align: left;
+            width: 1.2em;
         }
 
-        @keyframes dotsAnim {
+        @keyframes dotsLoad {
             0% { content: ''; }
             25% { content: '.'; }
             50% { content: '..'; }
@@ -136,457 +137,548 @@
             100% { content: ''; }
         }
 
-        .zoom-green {
-            animation: bounceGreen 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-            display: inline-block;
+        .green-complete {
+            animation: zoomGreenText 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
             color: #6eff6e !important;
-            text-shadow: 0 0 8px #00ff48;
         }
 
-        @keyframes bounceGreen {
+        @keyframes zoomGreenText {
             0% { transform: scale(0.9); color: white; }
-            60% { transform: scale(1.25); color: #bbff99; }
+            60% { transform: scale(1.2); color: #bbff99; }
             100% { transform: scale(1); color: #57ff57; }
-        }
-
-        .beta-cinematic {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000f0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
-            font-family: 'Determination', monospace;
-            backdrop-filter: blur(4px);
-            pointer-events: none;
-            animation: vanishOverlay 3.5s forwards;
-        }
-
-        .beta-line1 {
-            font-size: 2.4rem;
-            color: white;
-            text-align: center;
-            margin: 8px;
-            animation: riseUp 1s ease-out forwards;
-        }
-
-        .beta-line1 span {
-            color: #ffcc44;
-            font-size: 3rem;
-            text-shadow: 0 0 8px #ffaa33;
-        }
-
-        .beta-line2 {
-            font-size: 2rem;
-            margin-top: 15px;
-            animation: appearLate 0.9s ease-out 0.7s forwards;
-            opacity: 0;
-            transform: translateY(25px);
-            color: #dddddd;
-        }
-
-        @keyframes riseUp {
-            0% { opacity: 1; transform: translateY(0);}
-            80% { opacity: 1; transform: translateY(-28px);}
-            100% { opacity: 0; transform: translateY(-60px); visibility: hidden;}
-        }
-
-        @keyframes appearLate {
-            0% { opacity: 0; transform: translateY(28px);}
-            100% { opacity: 1; transform: translateY(0);}
-        }
-
-        @keyframes vanishOverlay {
-            0% { opacity: 1; visibility: visible; }
-            70% { opacity: 1; }
-            100% { opacity: 0; visibility: hidden; display: none; }
         }
 
         .hidden {
             display: none;
         }
+
+        .dialog-overlay {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 86%;
+            max-width: 780px;
+            background: #000000ee;
+            border: 4px solid #ffffff;
+            border-radius: 20px;
+            padding: 20px 28px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            font-family: 'Determination', monospace;
+        }
+
+        .dialog-text {
+            color: #ffffff;
+            font-size: 1.65rem;
+            min-height: 85px;
+            line-height: 1.4;
+            font-family: 'Determination', monospace;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 18px;
+        }
+
+        .dialog-btn {
+            background: #000000aa;
+            border: 2px solid #fff;
+            color: white;
+            font-family: 'Determination', monospace;
+            font-size: 1.3rem;
+            padding: 6px 22px;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+
+        .dialog-btn:hover {
+            background: white;
+            color: black;
+        }
+
+        .controls-tip {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            color: #ffffffcc;
+            background: #00000099;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-family: monospace;
+            z-index: 90;
+            pointer-events: none;
+            backdrop-filter: blur(2px);
+        }
+
+        .click-fire-btn {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6622;
+            color: white;
+            border: 3px solid #ffcc44;
+            padding: 12px 30px;
+            font-family: 'Determination', monospace;
+            font-size: 1.5rem;
+            border-radius: 60px;
+            cursor: pointer;
+            z-index: 200;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); background: #ff8844; }
+            100% { transform: translateX(-50%) scale(1); }
+        }
     </style>
 </head>
 <body>
-<div class="game-wrapper" id="gameRoot">
-    <div class="dialog-panel" id="dialogPanel">
-        <div class="dialog-text" id="messageBox"></div>
-        <div id="inputArea" class="input-zone"></div>
+<div class="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div class="controls-tip">← → ↑ ↓  moverte | ⭐ ENTER (cerca del campista) | SHIFT salta diálogos</div>
+    <div id="dialogBox" class="dialog-overlay hidden">
+        <div id="dialogMessage" class="dialog-text"></div>
+        <div id="dialogInputArea" class="dialog-buttons"></div>
+    </div>
+</div>
+
+<div id="titleScreen" class="title-screen">
+    <div class="title-box">
+        <div class="title-text" id="titlePrompt">Hola, Jugador.</div>
+        <div id="chapterSelect" style="display: none;">
+            <button id="chapter1Btn" class="title-btn" style="margin: 10px;">Capítulo 1</button>
+        </div>
+        <input type="text" id="nameInput" class="title-input" maxlength="14" placeholder="______" autocomplete="off">
+        <button id="submitNameBtn" class="title-btn">Aceptar</button>
+        <div id="loadingStatus" class="loading-indicator hidden"></div>
     </div>
 </div>
 
 <script>
-    // ========== SONIDO DE TEXTO (beep undertale) ==========
-    class TextBeeper {
-        constructor() {
-            this.audioCtx = null;
-            this.active = true;
-            try {
-                this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            } catch(e) { this.active = false; }
-        }
-        resume() {
-            if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
-        }
-        beep() {
-            if (!this.active || !this.audioCtx) return;
-            if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
-            const osc = this.audioCtx.createOscillator();
-            const gain = this.audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(this.audioCtx.destination);
-            osc.type = 'square';
-            osc.frequency.value = 880;
-            gain.gain.value = 0.09;
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, this.audioCtx.currentTime + 0.1);
-            osc.stop(this.audioCtx.currentTime + 0.09);
-        }
+    // ==================== MÚSICA ====================
+    class MusicPlayer {
+        constructor() { this.currentAudio = null; }
+        play(url, loop = false) { this.stop(); this.currentAudio = new Audio(url); this.currentAudio.loop = loop; this.currentAudio.volume = 0.4; this.currentAudio.play().catch(e => console.log("Audio error")); }
+        stop() { if (this.currentAudio) { this.currentAudio.pause(); this.currentAudio.currentTime = 0; this.currentAudio = null; } }
     }
-    const soundFx = new TextBeeper();
-
-    // Typwriter con sonido
-    async function writeMessage(element, text, speed = 45, soundOn = true) {
-        element.textContent = '';
-        for (let i = 0; i < text.length; i++) {
-            element.textContent += text[i];
-            if (soundOn && soundFx) soundFx.beep();
-            await new Promise(r => setTimeout(r, speed));
-        }
-        return true;
+    const musicPlayer = new MusicPlayer();
+    
+    let currentTypingPromise = null, skipTyping = false;
+    async function typeWriterWithSkip(element, text, speed = 42) {
+        if (currentTypingPromise) { skipTyping = true; await currentTypingPromise; }
+        skipTyping = false; element.textContent = '';
+        for (let i = 0; i < text.length; i++) { if (skipTyping) { element.textContent = text; skipTyping = false; return; } element.textContent += text[i]; await new Promise(r => setTimeout(r, speed)); }
     }
-
-    // UI Elements
-    const msgDiv = document.getElementById("messageBox");
-    const inputZone = document.getElementById("inputArea");
-
-    function clearInputZone() {
-        inputZone.innerHTML = "";
-    }
-
-    // Mostrar mensaje normal (auto-siguiente)
-    async function showMsg(text, autoNext = true, delay = 750) {
-        clearInputZone();
-        await writeMessage(msgDiv, text, 43, true);
-        if (autoNext) await new Promise(r => setTimeout(r, delay));
-        return true;
-    }
-
-    // Mostrar mensaje con botones Sí / No
-    async function showChoice(message, onYes, onNo) {
-        clearInputZone();
-        await writeMessage(msgDiv, message, 45, true);
-        const btnGroup = document.createElement("div");
-        btnGroup.className = "button-row";
-        const yesBtn = document.createElement("button");
-        yesBtn.textContent = "SÍ";
-        const noBtn = document.createElement("button");
-        noBtn.textContent = "NO";
-        btnGroup.appendChild(yesBtn);
-        btnGroup.appendChild(noBtn);
-        inputZone.appendChild(btnGroup);
+    
+    let dialogActive = false;
+    function showDialogMessage(text, autoClose = false, duration = 1500) { return new Promise(async (resolve) => { const dialogDiv = document.getElementById('dialogBox'); const msgDiv = document.getElementById('dialogMessage'); const inputArea = document.getElementById('dialogInputArea'); dialogDiv.classList.remove('hidden'); inputArea.innerHTML = ''; await typeWriterWithSkip(msgDiv, text, 42); if (autoClose) { setTimeout(() => { dialogDiv.classList.add('hidden'); resolve(); }, duration); } else { const btn = document.createElement('button'); btn.textContent = "➡️"; btn.className = "dialog-btn"; btn.onclick = () => { dialogDiv.classList.add('hidden'); resolve(); }; inputArea.appendChild(btn); } }); }
+    function showChoice(message, onYes, onNo) { return new Promise(async (resolve) => { const dialogDiv = document.getElementById('dialogBox'); const msgDiv = document.getElementById('dialogMessage'); const inputArea = document.getElementById('dialogInputArea'); dialogDiv.classList.remove('hidden'); inputArea.innerHTML = ''; await typeWriterWithSkip(msgDiv, message, 42); const yesBtn = document.createElement('button'); yesBtn.textContent = "SÍ"; yesBtn.className = "dialog-btn"; const noBtn = document.createElement('button'); noBtn.textContent = "NO"; noBtn.className = "dialog-btn"; inputArea.appendChild(yesBtn); inputArea.appendChild(noBtn); yesBtn.onclick = () => { dialogDiv.classList.add('hidden'); onYes(); resolve(); }; noBtn.onclick = () => { dialogDiv.classList.add('hidden'); onNo(); resolve(); }; }); }
+    
+    // ==================== CANVAS ====================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let camera = { x: 0, y: 0 };
+    const mapWidth = 2400, mapHeight = 2000;
+    let player = { x: 1200, y: 1000, speed: 4.5 };
+    let companion = { x: 1200 - 35, y: 1000 };
+    let playerAnim = { walkCycle: 0, blink: 0, moving: false, running: false, runProgress: 0, falling: false, fallProgress: 0 };
+    let keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+    let frame = 0, fireAnim = 0, blurAmount = 0, lightsDim = false;
+    let gamePhase = "title"; let nombreJugador = "";
+    let cinematicMode = false;
+    let historiaState = "waiting";
+    let entidades = [];
+    let corriendoAutomatico = false;
+    let velocidadCorrer = 9;
+    
+    let fogata = { x: 1120, y: 940, exploded: false };
+    let bushes = [{ x: 1000, y: 850, w: 60, h: 40 }, { x: 1300, y: 950, w: 55, h: 38 }, { x: 850, y: 1020, w: 65, h: 42 }];
+    
+    function guardarDatos(nombre) { const fecha = new Date().toLocaleString(); localStorage.setItem("campNombre", nombre); localStorage.setItem("campFecha", fecha); localStorage.setItem("campFechaMemoria", fecha); }
+    function obtenerDatos() { return { nombre: localStorage.getItem("campNombre"), fecha: localStorage.getItem("campFecha"), fechaMemoria: localStorage.getItem("campFechaMemoria") }; }
+    
+    function drawWorld() {
+        if (cinematicMode && !playerAnim.running && !playerAnim.falling && !corriendoAutomatico) { ctx.fillStyle = "#000000"; ctx.fillRect(0, 0, canvas.width, canvas.height); return; }
+        const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        grad.addColorStop(0, lightsDim ? '#020408' : '#030618'); grad.addColorStop(1, lightsDim ? '#0a0e1a' : '#0e142e');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (!lightsDim) for (let i = 0; i < 600; i++) { let starX = (i * 173) % mapWidth - camera.x, starY = (i * 97) % mapHeight - camera.y; let flicker = 0.3 + Math.sin(frame * 0.03 + i) * 0.4; ctx.fillStyle = `rgba(255, 245, 200, ${flicker})`; ctx.fillRect(starX, starY, 2, 2); }
+        let moonX = 260 - camera.x, moonY = 80 - camera.y; ctx.fillStyle = lightsDim ? "#5a5a6a" : "#f5e8c4"; ctx.fillRect(moonX, moonY, 48, 48);
+        for (let y = 0; y < 35; y++) { ctx.fillStyle = lightsDim ? "#0a1a0a" : "#0e2a12"; ctx.fillRect(0, y * 42, canvas.width, 42); }
+        const trees = [[320,580],[680,500],[980,680],[1380,540],[1950,720],[2180,590]];
+        trees.forEach(t => { let tx = t[0] - camera.x, ty = t[1] - camera.y; ctx.fillStyle = "#1e5a1e"; ctx.fillRect(tx, ty, 42, 42); ctx.fillStyle = "#3a8a3a"; ctx.fillRect(tx - 12, ty - 16, 64, 36); });
+        bushes.forEach(b => { ctx.fillStyle = "#2a5a2a"; ctx.fillRect(b.x - camera.x, b.y - camera.y, b.w, b.h); for (let i = 0; i < 6; i++) ctx.fillRect(b.x + i*8 - camera.x, b.y - 6 - camera.y, 5, 12); });
+        if (!fogata.exploded) { let fx = fogata.x - camera.x, fy = fogata.y - camera.y; fireAnim = (fireAnim + 0.2) % (Math.PI * 2); let flick = Math.sin(fireAnim) * 5; ctx.fillStyle = "#5a2510"; ctx.fillRect(fx, fy, 44, 34); ctx.fillStyle = "#e85a1a"; ctx.fillRect(fx + 8 + flick*0.3, fy - 18, 28, 26); ctx.fillStyle = "#ffaa44"; ctx.fillRect(fx + 14, fy - 30, 16, 22); }
         
-        const handlerYes = () => {
-            soundFx.beep();
-            clearInputZone();
-            yesBtn.removeEventListener("click", handlerYes);
-            noBtn.removeEventListener("click", handlerNo);
-            onYes();
-        };
-        const handlerNo = () => {
-            soundFx.beep();
-            clearInputZone();
-            yesBtn.removeEventListener("click", handlerYes);
-            noBtn.removeEventListener("click", handlerNo);
-            onNo();
-        };
-        yesBtn.addEventListener("click", handlerYes);
-        noBtn.addEventListener("click", handlerNo);
+        entidades.forEach(e => { if (e.type === "serpiente") { ctx.fillStyle = "#5a8a3a"; ctx.fillRect(e.x - camera.x, e.y - camera.y, 20, 12); ctx.fillStyle = "#aa6633"; ctx.fillRect(e.x + 5 - camera.x, e.y - 4 - camera.y, 10, 6); } });
+        if (historiaState === "mostrando_animales") { ctx.fillStyle = "#ffffff"; ctx.font = "24px monospace"; ctx.fillText("🐻 OSOS 🐺 LOBOS 🦌 CIERVO 👤 FIGURA NEGRA", player.x - camera.x - 200, player.y - camera.y - 80); }
     }
-
-    // Input para escribir nombre
-    async function askName(promptText, callback) {
-        clearInputZone();
-        await writeMessage(msgDiv, promptText, 48, true);
-        const nameInput = document.createElement("input");
-        nameInput.type = "text";
-        nameInput.maxLength = 14;
-        nameInput.autocomplete = "off";
-        nameInput.placeholder = "...";
-        const submitBtn = document.createElement("button");
-        submitBtn.textContent = "Aceptar";
-        inputZone.appendChild(nameInput);
-        inputZone.appendChild(submitBtn);
-        nameInput.focus();
-        const finish = () => {
-            let val = nameInput.value.trim();
-            if (val === "") val = "Viajero";
-            soundFx.beep();
-            clearInputZone();
-            callback(val);
-        };
-        submitBtn.onclick = finish;
-        nameInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") finish();
-        });
+    
+    function drawCompanion() {
+        if ((cinematicMode && !playerAnim.running && !playerAnim.falling && !corriendoAutomatico)) return;
+        let cx = companion.x - camera.x, cy = companion.y - camera.y;
+        if (playerAnim.running || corriendoAutomatico) { cx += (playerAnim.runProgress * 15); cy += Math.sin((playerAnim.runProgress || frame * 0.1) * Math.PI * 4) * 4; }
+        if (playerAnim.falling) { cy += playerAnim.fallProgress * 12; }
+        ctx.fillStyle = "#8aac6a"; ctx.fillRect(cx, cy, 28, 32);
+        ctx.fillStyle = "#5a3a2a"; ctx.fillRect(cx + 6, cy + 8, 5, 6); ctx.fillRect(cx + 17, cy + 8, 5, 6);
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(cx + 7, cy + 9, 2, 3); ctx.fillRect(cx + 18, cy + 9, 2, 3);
+        ctx.fillStyle = "#000000"; ctx.fillRect(cx + 8, cy + 10, 2, 2); ctx.fillRect(cx + 19, cy + 10, 2, 2);
+        ctx.fillStyle = "#d68a5a"; ctx.fillRect(cx + 4, cy + 18, 4, 4); ctx.fillRect(cx + 20, cy + 18, 4, 4);
+        ctx.fillStyle = "#4a2a1a"; ctx.fillRect(cx + 4, cy - 4, 20, 8);
+        ctx.fillStyle = "#eebb66"; ctx.beginPath(); ctx.ellipse(cx + 14, cy - 6, 8, 6, 0, 0, Math.PI * 2); ctx.fill();
     }
-
-    // animación de carga: "Empezando..." + "Carga completa" verde
-    async function loadingSequence() {
-        clearInputZone();
-        let dots = 0;
-        msgDiv.innerHTML = "Empezando";
-        const interval = setInterval(() => {
-            dots = (dots + 1) % 4;
-            let dotStr = ".".repeat(dots);
-            msgDiv.innerHTML = `Empezando${dotStr}`;
-        }, 450);
-        await new Promise(r => setTimeout(r, 2800));
-        clearInterval(interval);
-        msgDiv.innerHTML = "Carga completa";
-        msgDiv.classList.add("zoom-green");
-        await new Promise(r => setTimeout(r, 650));
-        msgDiv.classList.remove("zoom-green");
-        await new Promise(r => setTimeout(r, 250));
+    
+    function drawPlayer() { 
+        if ((cinematicMode && !playerAnim.running && !playerAnim.falling && !corriendoAutomatico)) return;
+        let px = player.x - camera.x, py = player.y - camera.y;
+        if (playerAnim.running || corriendoAutomatico) { px += (playerAnim.runProgress * 15); py += Math.sin((playerAnim.runProgress || frame * 0.1) * Math.PI * 4) * 4; }
+        if (playerAnim.falling) { py += playerAnim.fallProgress * 12; }
+        if (playerAnim.moving && !playerAnim.running && !corriendoAutomatico) playerAnim.walkCycle = (playerAnim.walkCycle + 0.25) % (Math.PI * 2);
+        else playerAnim.walkCycle = Math.sin(frame * 0.1) * 0.3;
+        let legOffset = Math.sin(playerAnim.walkCycle) * 3;
+        ctx.fillStyle = "#ffeaa0"; ctx.fillRect(px, py, 30, 32);
+        ctx.fillStyle = "#4a3020"; ctx.fillRect(px + 6, py + 26, 6, 10); ctx.fillRect(px + 18, py + 26, 6, 10);
+        ctx.fillStyle = "#3a2010"; ctx.fillRect(px + 6 + legOffset * 0.5, py + 30, 5, 6); ctx.fillRect(px + 18 - legOffset * 0.5, py + 30, 5, 6);
+        let blinkState = 1; if (playerAnim.blink > 0) { blinkState = 0; playerAnim.blink--; } else if (Math.random() < 0.002) playerAnim.blink = 8;
+        ctx.fillStyle = "#2a1a0a"; ctx.fillRect(px + 7, py + 8, 6, 7); ctx.fillRect(px + 17, py + 8, 6, 7);
+        if (blinkState) { ctx.fillStyle = "#ffffff"; ctx.fillRect(px + 8, py + 9, 3, 4); ctx.fillRect(px + 18, py + 9, 3, 4); ctx.fillStyle = "#000000"; ctx.fillRect(px + 9, py + 10, 2, 2); ctx.fillRect(px + 19, py + 10, 2, 2); }
+        ctx.fillStyle = "#5a3520"; ctx.fillRect(px + 4, py - 4, 22, 9); ctx.fillStyle = "#dd5555"; ctx.fillRect(px + 8, py + 4, 14, 7);
     }
-
-    // Pantalla de "Beta" animada estilo Undertale
-    function displayBetaMessage() {
-        if (document.querySelector(".beta-cinematic")) return;
-        const overlay = document.createElement("div");
-        overlay.className = "beta-cinematic";
-        overlay.innerHTML = `
-            <div class="beta-line1">Este juego está en fase <span>Beta</span></div>
-            <div class="beta-line2">La versión completa pronto</div>
-        `;
-        document.body.appendChild(overlay);
-        setTimeout(() => {
-            if (overlay && overlay.remove) overlay.remove();
-        }, 3600);
+    
+    function updateCamera() { camera.x = player.x - canvas.width/2; camera.y = player.y - canvas.height/2; camera.x = Math.min(Math.max(camera.x, 0), mapWidth - canvas.width); camera.y = Math.min(Math.max(camera.y, 0), mapHeight - canvas.height); }
+    function movePlayer() { 
+        if (dialogActive || gamePhase !== "playing" || cinematicMode || historiaState !== "waiting" || playerAnim.running || playerAnim.falling || corriendoAutomatico) { playerAnim.moving = false; return; } 
+        let moved = false; 
+        if (keys.ArrowUp) { player.y -= player.speed; moved = true; } 
+        if (keys.ArrowDown) { player.y += player.speed; moved = true; } 
+        if (keys.ArrowLeft) { player.x -= player.speed; moved = true; } 
+        if (keys.ArrowRight) { player.x += player.speed; moved = true; } 
+        player.x = Math.min(Math.max(player.x, 70), mapWidth - 70); 
+        player.y = Math.min(Math.max(player.y, 70), mapHeight - 70);
+        companion.x = player.x - 35;
+        companion.y = player.y;
+        playerAnim.moving = moved; 
+        if (moved) updateCamera(); 
     }
-
-    // ================ ALMACENAMIENTO LOCAL PARA NOMBRE Y FECHAS ================
-    function savePlayerData(name, dateStr) {
-        localStorage.setItem("camp_nombre", JSON.stringify({ nombre: name, fecha: dateStr }));
-        localStorage.setItem("camp_fecha_mem", dateStr);
+    
+    async function cinematicBlurOut() { for (let i = 0; i <= 30; i++) { blurAmount = i * 2; await new Promise(r => setTimeout(r, 20)); } }
+    async function cinematicBlurIn() { for (let i = 30; i >= 0; i--) { blurAmount = i * 2; await new Promise(r => setTimeout(r, 20)); } }
+    
+    async function mostrarAnimales() {
+        historiaState = "mostrando_animales";
+        cinematicMode = true;
+        for (let i = 0; i < 50; i++) { frame++; await new Promise(r => setTimeout(r, 100)); }
+        await new Promise(r => setTimeout(r, 5000));
+        historiaState = "serpientes";
+        cinematicMode = false;
     }
-    function getStoredNameData() {
-        const raw = localStorage.getItem("camp_nombre");
-        if (raw) {
-            try { return JSON.parse(raw); } catch(e) { return null; }
-        }
-        return null;
-    }
-    function getMemoryDate() {
-        return localStorage.getItem("camp_fecha_mem");
-    }
-    function setMemoryDate(date) {
-        localStorage.setItem("camp_fecha_mem", date);
-    }
-
-    // ==================== JUEGO PRINCIPAL (historia de fogata, serpientes, osos) ====================
-    let currentPlayer = "";
-    let retryAttempt = false;
-
-    async function startGameStory() {
-        // 1. Bienvenida y manejo de nombre estilo "campamento"
-        const stored = getStoredNameData();
-        const today = new Date().toLocaleString();
+    
+    async function iniciarHistoria() {
+        historiaState = "fogata";
+        cinematicMode = true;
+        for (let i = 0; i < 20; i++) { player.x += (1150 - player.x) / 20; player.y += (960 - player.y) / 20; companion.x = player.x - 35; companion.y = player.y; updateCamera(); await new Promise(r => setTimeout(r, 25)); }
+        cinematicMode = false;
         
-        if (stored && stored.nombre) {
-            const fechaGuardada = stored.fecha;
-            const fechaMemoria = getMemoryDate();
-            if (fechaGuardada === fechaMemoria && fechaMemoria !== null) {
-                currentPlayer = stored.nombre;
-                await showMsg(`Hola ${currentPlayer} volviste`, true, 850);
-            } else {
-                currentPlayer = stored.nombre;
-                await showMsg("Oye...", true, 700);
-                await showMsg("¿Por qué tu fecha de nombre es distinta a la que recuerdo?", true, 950);
-                await showMsg("¿Viajas en el pasado o en el futuro?", true, 900);
-                await showMsg("O tal vez lo cambiaste...", true, 800);
-                await showMsg(`Bueno ${currentPlayer}, qué importa, sigamos`, true, 850);
-                await showMsg(`Hola ${currentPlayer}, un gusto en conocerte.`, true, 900);
-            }
-        } else {
-            // Primera vez: pedir nombre
-            await new Promise(resolve => {
-                askName("Escribe tu nombre en el teclado", async (nombre) => {
-                    currentPlayer = nombre;
-                    await showMsg(`Te llamarás ${currentPlayer}`, true, 750);
-                    const nowDate = new Date().toLocaleString();
-                    savePlayerData(currentPlayer, nowDate);
-                    setMemoryDate(nowDate);
-                    await showMsg(`Hola ${currentPlayer}, un gusto en conocerte.`, true, 900);
-                    resolve();
-                });
-            });
-        }
+        await showDialogMessage("Ven. Hagamos tu primera fogata.", true, 1800);
+        await showDialogMessage("*Encienden una fogata hermosa*", true, 2000);
+        await showDialogMessage("Que bonito.", true, 1500);
+        await showDialogMessage("Espera... ¡APAGA LA FOGATA!", true, 1800);
         
-        // 2. Continuación de la historia del campamento (sin IP ni links)
-        await showMsg("Ahora todo está listo...", true, 700);
-        await showMsg("Ven. Hagamos tu primera fogata.", true, 850);
-        await showMsg("*Encienden una hermosa fogata crepitante*", true, 1200);
-        await showMsg("Que bonito...", true, 800);
-        await showMsg("Espera... ¡APAGA LA FOGATA!", true, 900);
-        await showMsg("¡Rápido, hay una fuga de gas! ¡APAGA ESA FOGATA!", true, 1000);
-        await showMsg("*Intentas apagar las llamas...*", true, 950);
-        await showMsg("*De repente... una explosión te deja inconsciente...*", true, 1400);
-        await showMsg("...", true, 800);
-        await showMsg("Despierta", true, 700);
-        await showMsg("¡DESPIERTA!", true, 700);
-        await showMsg("*suspiro* Por fin despertaste.", true, 850);
-        await showMsg("Esa fogata no salió tan bien.", true, 900);
-        await showMsg("Lo haremos mañana.", true, 800);
-        await showMsg("*Escuchas un sonido raro... algo se arrastra*", true, 1100);
-        await showMsg("Ey, ¿escuchaste eso?", true, 800);
-        await showMsg("¡SON SERPIENTES!", true, 800);
-        await showMsg("¡Muchas serpientes venenosas! ¡ESCONDETE!", true, 950);
-        await showMsg("¡CORRE!", true, 600);
+        await showChoice("🔥 HAZ CLICK PARA APAGAR LA FOGATA 🔥", async () => {}, async () => {});
         
-        // Secuencia de escape con serpientes, osos, reintentos
-        let caught = false;
-        let retryLoop = false;
+        await cinematicBlurOut();
+        fogata.exploded = true;
+        await showDialogMessage("¡La explosión te deja inconsciente...!", true, 2000);
+        await new Promise(r => setTimeout(r, 800));
+        await cinematicBlurIn();
+        lightsDim = true;
+        
+        await showDialogMessage("...", true, 800);
+        await showDialogMessage("Despierta", true, 1000);
+        await showDialogMessage("¡DESPIERTA!", true, 1000);
+        await showDialogMessage("*suspiro* por fin despertaste", true, 1500);
+        await showDialogMessage("Esa fogata no salió tan bien.", true, 1500);
+        await showDialogMessage("Lo haremos mañana.", true, 1300);
+        
+        // SECUENCIA CORRECTA: Primero ESCONDETE, luego aparecen serpientes
+        await showDialogMessage("¡ESCONDETE!", true, 1500);
+        
+        historiaState = "serpientes_visibles";
+        entidades = [];
+        for (let i = 0; i < 6; i++) { entidades.push({ type: "serpiente", x: player.x - 80 + i * 35, y: player.y + 25 }); }
+        await new Promise(r => setTimeout(r, 3000));
+        entidades = [];
+        
+        await showDialogMessage("¡CORRE!", true, 1200);
+        
+        await secuenciaPersecucion();
+    }
+    
+    async function secuenciaPersecucion() {
+        let atrapado = false;
+        let escapeExitoso = false;
+        const frases = ["Presiona CORRER para correr más rápido", "¡MÁS RAPIDO!", "¡COMO SI NO HUBIERA UN MAÑANA!", "¡NO TE RINDAS!", "¡MÁS AHHH!"];
         
         do {
-            caught = false;
-            await showMsg("Procedes a correr desesperadamente...", true, 900);
-            await showMsg("Pero de repente aparecen osos salvajes también.", true, 1000);
+            atrapado = false;
             
-            const frasesEscape = [
-                "Presiona ACEPTAR para correr más rápido",
-                "¡MÁS RÁPIDO!",
-                "¡COMO SI NO HUBIERA UN MAÑANA!",
-                "¡NO TE RINDAS!",
-                "¡MÁS, AHHH!"
-            ];
+            // INICIO DE CARRERA AUTOMÁTICA
+            corriendoAutomatico = true;
+            playerAnim.running = true;
+            playerAnim.runProgress = 0;
+            cinematicMode = true;
             
-            let cancelPressed = false;
-            for (let i = 0; i < frasesEscape.length; i++) {
-                let userChoice = false;
-                await new Promise(async (resolve) => {
-                    // mostramos botones OK y Cancelar en cada paso
-                    clearInputZone();
-                    await writeMessage(msgDiv, frasesEscape[i], 45, true);
-                    const btnGroup = document.createElement("div");
-                    btnGroup.className = "button-row";
-                    const okBtn = document.createElement("button");
-                    okBtn.textContent = "⚡ CORRER ⚡";
-                    const cancelBtn = document.createElement("button");
-                    cancelBtn.textContent = "✋ RENDIRSE";
-                    btnGroup.appendChild(okBtn);
-                    btnGroup.appendChild(cancelBtn);
-                    inputZone.appendChild(btnGroup);
-                    
-                    const onOk = () => {
-                        soundFx.beep();
-                        clearInputZone();
-                        userChoice = true;
-                        cancelPressed = false;
-                        resolve();
-                    };
-                    const onCancel = () => {
-                        soundFx.beep();
-                        clearInputZone();
-                        cancelPressed = true;
-                        userChoice = false;
-                        resolve();
-                    };
-                    okBtn.onclick = onOk;
-                    cancelBtn.onclick = onCancel;
-                });
-                if (cancelPressed) {
-                    caught = true;
-                    break;
+            // Bucle de carrera continua
+            let carreraActiva = true;
+            let indiceFrase = 0;
+            
+            while (carreraActiva && !escapeExitoso && !atrapado) {
+                // Movimiento automático continuo
+                for (let s = 0; s < 10; s++) {
+                    playerAnim.runProgress = (playerAnim.runProgress + 0.05) % 1;
+                    player.x += velocidadCorrer;
+                    companion.x = player.x - 35;
+                    companion.y = player.y;
+                    updateCamera();
+                    await new Promise(r => setTimeout(r, 20));
                 }
-                await new Promise(r => setTimeout(r, 500));
-            }
-            
-            if (caught) {
-                await showMsg("Te atrapan las criaturas... todo se vuelve oscuro...", true, 1100);
-                await showMsg("💀 Has quedado derrotado... 💀", true, 1000);
-                let wantRetry = false;
-                await new Promise(resolve => {
-                    showChoice("¿Quieres reintentar y escapar?", async () => {
-                        wantRetry = true;
-                        await showMsg("Reintentando... ¡Esta vez lo lograrás!", true, 900);
-                        resolve();
-                    }, async () => {
-                        wantRetry = false;
-                        await showMsg("La historia se detiene aquí...", true, 800);
-                        resolve();
+                
+                // Mostrar siguiente mensaje con opciones
+                if (indiceFrase < frases.length) {
+                    let cancelado = false;
+                    await new Promise(async (resolve) => {
+                        const dialogDiv = document.getElementById('dialogBox');
+                        const msgDiv = document.getElementById('dialogMessage');
+                        const inputArea = document.getElementById('dialogInputArea');
+                        dialogDiv.classList.remove('hidden');
+                        inputArea.innerHTML = '';
+                        await typeWriterWithSkip(msgDiv, frases[indiceFrase], 45);
+                        const okBtn = document.createElement('button'); okBtn.textContent = "🏃 CORRER 🏃"; okBtn.className = "dialog-btn";
+                        const cancelBtn = document.createElement('button'); cancelBtn.textContent = "✋ RENDIRSE"; cancelBtn.className = "dialog-btn";
+                        inputArea.appendChild(okBtn); inputArea.appendChild(cancelBtn);
+                        okBtn.onclick = () => { dialogDiv.classList.add('hidden'); cancelado = false; resolve(); };
+                        cancelBtn.onclick = () => { dialogDiv.classList.add('hidden'); cancelado = true; resolve(); };
                     });
-                });
-                if (!wantRetry) {
-                    await showMsg("FIN. (Recarga la página para jugar de nuevo)", true, 2000);
-                    return;
-                } else {
-                    retryLoop = true;
-                    continue;
-                }
-            } else {
-                // escapó con éxito
-                await showMsg("¡Lograste escapar de las serpientes y los osos!", true, 1000);
-                await showMsg("Sales del bosque y llegas a un claro iluminado por la luna.", true, 1100);
-                await showMsg("Continuará...", true, 900);
-                displayBetaMessage();   // Mensaje Beta al final
-                await showMsg("Por ahora la aventura queda aquí.", true, 1100);
-                await showMsg("Gracias por jugar, " + currentPlayer + ".", true, 1200);
-                break;
-            }
-        } while (retryLoop);
-    }
-    
-    // ==================== INICIO OFICIAL DEL JUEGO ====================
-    async function mainInit() {
-        // Secuencia inicial: diálogos iniciales (Hola jugador, nombre, etc)
-        await writeMessage(msgDiv, "Hola, Jugador.", 48, true);
-        await new Promise(r => setTimeout(r, 700));
-        await writeMessage(msgDiv, "Todavía no sé tu nombre...", 48, true);
-        await new Promise(r => setTimeout(r, 700));
-        await writeMessage(msgDiv, "Escribe tu nombre en el teclado", 48, true);
-        await new Promise(r => setTimeout(r, 600));
-        
-        // Llamar al sistema de nombre
-        await new Promise(resolve => {
-            askName("", async (nombre) => {
-                currentPlayer = nombre;
-                await showMsg(`"${currentPlayer}"`, true, 500);
-                await showChoice(`¿Estás seguro de que ${currentPlayer} va a ser tu nombre en el juego?`, 
-                    async () => {
-                        await showMsg("Empezando...", false);
-                        await loadingSequence();
-                        await startGameStory();
-                        resolve();
-                    }, 
-                    async () => {
-                        // reiniciar flujo de nombre
-                        await writeMessage(msgDiv, "Entonces, escribe de nuevo tu nombre.", 48, true);
-                        await new Promise(resolveName => {
-                            askName("", async (newName) => {
-                                currentPlayer = newName;
-                                await showMsg(`Perfecto, ahora eres ${currentPlayer}`, true, 700);
-                                await showMsg("Empezando...", false);
-                                await loadingSequence();
-                                await startGameStory();
-                                resolveName();
-                                resolve();
-                            });
-                        });
+                    
+                    if (cancelado) {
+                        atrapado = true;
+                        carreraActiva = false;
+                        break;
                     }
-                );
-            });
-        });
+                    
+                    // Acelerar al presionar CORRER
+                    velocidadCorrer += 2;
+                    if (velocidadCorrer > 25) velocidadCorrer = 25;
+                    indiceFrase++;
+                    await new Promise(r => setTimeout(r, 200));
+                } else {
+                    carreraActiva = false;
+                    escapeExitoso = true;
+                }
+            }
+            
+            playerAnim.running = false;
+            corriendoAutomatico = false;
+            cinematicMode = false;
+            
+            if (atrapado) {
+                await cinematicBlurOut();
+                await showDialogMessage("Te atrapan y quedas mu3rt0...", true, 1800);
+                let reintentar = false;
+                await showChoice("¿Quieres reintentar?", () => { reintentar = true; }, () => { reintentar = false; });
+                if (!reintentar) { await showDialogMessage("No continuar.", true, 1500); await regresarMenu(); return; }
+                await cinematicBlurIn();
+                player.x = 1150; player.y = 960; companion.x = player.x - 35; companion.y = player.y; updateCamera();
+                velocidadCorrer = 9;
+            }
+        } while (!escapeExitoso);
+        
+        // ANIMACIÓN DE CAÍDA
+        playerAnim.falling = true;
+        playerAnim.fallProgress = 0;
+        cinematicMode = true;
+        for (let s = 0; s <= 20; s++) { 
+            playerAnim.fallProgress = s / 20;
+            companion.y = player.y;
+            await new Promise(r => setTimeout(r, 50)); 
+        }
+        playerAnim.falling = false;
+        cinematicMode = false;
+        
+        await cinematicBlurOut();
+        await showDialogMessage("Continuará...", true, 1500);
+        await showDialogMessage("Has sobrevivido a la noche, " + nombreJugador + ".", true, 2000);
+        await showDialogMessage("CAPÍTULO 1 COMPLETADO", true, 2500);
+        await regresarMenu();
     }
     
-    // Arrancar juego con posibilidad de resetear audio y evitar bloqueos
-    document.body.addEventListener("click", () => { if(soundFx) soundFx.resume(); });
-    mainInit();
+    async function regresarMenu() {
+        cinematicMode = true;
+        for (let i = 0; i <= 40; i++) { blurAmount = i * 1.5; await new Promise(r => setTimeout(r, 20)); }
+        localStorage.setItem("playerName", nombreJugador);
+        localStorage.setItem("hasPlayed", "true");
+        gamePhase = "title";
+        document.getElementById('titleScreen').classList.remove('hidden');
+        document.getElementById('titleScreen').style.opacity = '1';
+        document.getElementById('chapterSelect').style.display = 'block';
+        document.getElementById('nameInput').style.display = 'none';
+        document.getElementById('submitNameBtn').style.display = 'none';
+        document.getElementById('titlePrompt').textContent = "Menú Principal";
+        blurAmount = 0;
+        cinematicMode = false;
+        historiaState = "waiting";
+        fogata.exploded = false;
+        lightsDim = false;
+        entidades = [];
+        player.x = 1200; player.y = 1000;
+        companion.x = player.x - 35; companion.y = player.y;
+        playerAnim.running = false;
+        playerAnim.falling = false;
+        corriendoAutomatico = false;
+        velocidadCorrer = 9;
+        musicPlayer.stop();
+    }
+    
+    async function interactuarConCampista() {
+        if (historiaState !== "waiting") return;
+        dialogActive = true;
+        
+        const datos = obtenerDatos();
+        
+        if (datos.nombre && datos.fecha) {
+            if (datos.fecha === datos.fechaMemoria) {
+                await showDialogMessage(`Hola ${datos.nombre} volviste`, true, 2000);
+            } else {
+                await showDialogMessage("Oye...", true, 1200);
+                await showDialogMessage("Porque tu fecha de nombre es otro del que pusiste?", true, 2000);
+                await showDialogMessage("¿Viajas en el pasado o en el futuro?", true, 2000);
+                await showDialogMessage("O lo cambiaste...", true, 1500);
+                await showDialogMessage(`Bueno ${datos.nombre} que importa, sigamos`, true, 2000);
+                await showDialogMessage(`Hola ${datos.nombre}, un gusto en conocerte.`, true, 2000);
+            }
+            nombreJugador = datos.nombre;
+        } else {
+            guardarDatos(nombreJugador);
+            await showDialogMessage(`Hola ${nombreJugador}, un gusto en conocerte.`, true, 2000);
+        }
+        
+        dialogActive = false;
+        await iniciarHistoria();
+    }
+    
+    async function startGameplay() {
+        gamePhase = "playing";
+        historiaState = "waiting";
+        fogata.exploded = false;
+        lightsDim = false;
+        player.x = 1200; player.y = 1000;
+        companion.x = player.x - 35; companion.y = player.y;
+        updateCamera();
+        await showDialogMessage(`Bienvenido al campamento, ${nombreJugador}.`, true, 2000);
+        await showDialogMessage("Acércate al campista verde y presiona ENTER.", true, 2800);
+    }
+    
+    async function startTitleSequence() {
+        musicPlayer.play("https://cdn.pixabay.com/download/audio/2022/03/10/audio_nombre.mp3", true);
+        const titleScreen = document.getElementById('titleScreen');
+        const titlePrompt = document.getElementById('titlePrompt');
+        const nameInput = document.getElementById('nameInput');
+        const submitBtn = document.getElementById('submitNameBtn');
+        const loadingStatus = document.getElementById('loadingStatus');
+        const chapterSelect = document.getElementById('chapterSelect');
+        
+        const savedName = localStorage.getItem("playerName");
+        const hasPlayed = localStorage.getItem("hasPlayed");
+        
+        if (savedName && hasPlayed) {
+            chapterSelect.style.display = 'block';
+            nameInput.style.display = 'none';
+            submitBtn.style.display = 'none';
+            titlePrompt.textContent = "Menú Principal";
+            document.getElementById('chapter1Btn').onclick = async () => {
+                nombreJugador = savedName;
+                titleScreen.style.opacity = '0';
+                setTimeout(async () => {
+                    titleScreen.classList.add('hidden');
+                    musicPlayer.stop();
+                    loadingStatus.classList.remove('hidden');
+                    loadingStatus.innerHTML = "Empezando<span class='dot-animation'></span>";
+                    await new Promise(r => setTimeout(r, 2000));
+                    loadingStatus.innerHTML = "Carga completa";
+                    loadingStatus.classList.add('green-complete');
+                    await new Promise(r => setTimeout(r, 600));
+                    loadingStatus.classList.add('hidden');
+                    await startGameplay();
+                }, 500);
+            };
+            return;
+        }
+        
+        let step = 0; const dialogs = ["Hola, Jugador.", "Todavía no sé tu nombre...", "Escribe tu nombre en el teclado"];
+        async function showNextDialog() { if (step < dialogs.length) { titlePrompt.textContent = dialogs[step]; step++; setTimeout(showNextDialog, 1300); } else { nameInput.classList.remove('hidden'); submitBtn.classList.remove('hidden'); nameInput.focus(); } }
+        showNextDialog();
+        
+        submitBtn.onclick = async () => {
+            let rawName = nameInput.value.trim(); if (rawName === "") rawName = "Viajero";
+            nombreJugador = rawName;
+            nameInput.disabled = true; submitBtn.disabled = true;
+            titlePrompt.textContent = `"${nombreJugador}"`;
+            await new Promise(r => setTimeout(r, 700));
+            titlePrompt.textContent = `¿Estás seguro de que ${nombreJugador} va a ser tu nombre en el juego?`;
+            const btnContainer = document.createElement('div'); btnContainer.style.display = 'flex'; btnContainer.style.gap = '20px'; btnContainer.style.marginTop = '15px';
+            const yesBtn = document.createElement('button'); yesBtn.textContent = "SÍ"; yesBtn.className = "title-btn";
+            const noBtn = document.createElement('button'); noBtn.textContent = "NO"; noBtn.className = "title-btn";
+            btnContainer.appendChild(yesBtn); btnContainer.appendChild(noBtn);
+            document.querySelector('.title-box').appendChild(btnContainer);
+            let confirmed = false;
+            await new Promise(resolve => { yesBtn.onclick = () => { confirmed = true; resolve(); }; noBtn.onclick = () => { confirmed = false; resolve(); }; });
+            btnContainer.remove();
+            if (!confirmed) { nameInput.disabled = false; submitBtn.disabled = false; nameInput.value = ""; titlePrompt.textContent = "Escribe tu nombre nuevamente"; nameInput.focus(); return; }
+            
+            guardarDatos(nombreJugador);
+            titlePrompt.textContent = "Empezando";
+            loadingStatus.classList.remove('hidden');
+            loadingStatus.innerHTML = "Empezando<span class='dot-animation'></span>";
+            await new Promise(r => setTimeout(r, 3200));
+            loadingStatus.innerHTML = "Carga completa";
+            loadingStatus.classList.add('green-complete');
+            musicPlayer.stop();
+            await new Promise(r => setTimeout(r, 700));
+            titleScreen.style.opacity = '0';
+            setTimeout(() => { titleScreen.classList.add('hidden'); startGameplay(); }, 800);
+        };
+    }
+    
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Shift') { e.preventDefault(); skipTyping = true; }
+        if (e.key === 'Enter' && gamePhase === "playing" && !dialogActive && historiaState === "waiting") {
+            e.preventDefault();
+            let distX = Math.abs(player.x - (companion.x + 14)), distY = Math.abs(player.y - (companion.y + 16));
+            if (distX < 55 && distY < 55) { interactuarConCampista(); }
+        }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); keys[e.key] = true; }
+    });
+    window.addEventListener('keyup', (e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') keys[e.key] = false; });
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; updateCamera(); });
+    
+    function animate() { 
+        if (gamePhase === "playing" && !cinematicMode && historiaState === "waiting" && !playerAnim.running && !playerAnim.falling && !corriendoAutomatico) movePlayer();
+        if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; updateCamera(); } 
+        drawWorld(); drawCompanion(); drawPlayer(); 
+        if (blurAmount > 0) { ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(blurAmount / 50, 1)})`; ctx.fillRect(0, 0, canvas.width, canvas.height); } 
+        frame++; requestAnimationFrame(animate); 
+    }
+    
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    startTitleSequence();
+    animate();
 </script>
 </body>
 </html>
