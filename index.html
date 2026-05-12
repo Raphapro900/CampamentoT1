@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Undertale · Campamento · La Historia del VBS</title>
+    <title>Undertale · Campamento · Historia del VBS</title>
     <style>
         * {
             margin: 0;
@@ -174,6 +174,8 @@
             min-height: 85px;
             line-height: 1.4;
             font-family: 'Determination', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .dialog-buttons {
@@ -262,24 +264,115 @@
 </div>
 
 <script>
-    // ==================== MÚSICA ====================
+    // ==================== SISTEMA DE MÚSICA CON MP3 ====================
     class MusicPlayer {
-        constructor() { this.currentAudio = null; }
-        play(url, loop = false) { this.stop(); this.currentAudio = new Audio(url); this.currentAudio.loop = loop; this.currentAudio.volume = 0.4; this.currentAudio.play().catch(e => console.log("Audio error")); }
-        stop() { if (this.currentAudio) { this.currentAudio.pause(); this.currentAudio.currentTime = 0; this.currentAudio = null; } }
+        constructor() {
+            this.currentAudio = null;
+            this.currentUrl = null;
+        }
+        play(url, loop = false) {
+            if (this.currentUrl === url && this.currentAudio && !this.currentAudio.paused) return;
+            this.stop();
+            this.currentUrl = url;
+            this.currentAudio = new Audio(url);
+            this.currentAudio.loop = loop;
+            this.currentAudio.volume = 0.5;
+            this.currentAudio.play().catch(e => console.log("Audio error:", e));
+        }
+        stop() {
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio.currentTime = 0;
+                this.currentAudio = null;
+            }
+            this.currentUrl = null;
+        }
     }
     const musicPlayer = new MusicPlayer();
     
-    let currentTypingPromise = null, skipTyping = false;
-    async function typeWriterWithSkip(element, text, speed = 42) {
-        if (currentTypingPromise) { skipTyping = true; await currentTypingPromise; }
-        skipTyping = false; element.textContent = '';
-        for (let i = 0; i < text.length; i++) { if (skipTyping) { element.textContent = text; skipTyping = false; return; } element.textContent += text[i]; await new Promise(r => setTimeout(r, speed)); }
+    // ==================== DIÁLOGOS CORREGIDOS ====================
+    let skipTyping = false;
+    let currentTyping = null;
+    
+    async function typeText(element, text, speed = 42) {
+        if (currentTyping) {
+            skipTyping = true;
+            await currentTyping;
+        }
+        skipTyping = false;
+        element.textContent = '';
+        for (let i = 0; i < text.length; i++) {
+            if (skipTyping) {
+                element.textContent = text;
+                skipTyping = false;
+                return;
+            }
+            element.textContent += text[i];
+            await new Promise(r => setTimeout(r, speed));
+        }
     }
     
     let dialogActive = false;
-    function showDialogMessage(text, autoClose = false, duration = 1500) { return new Promise(async (resolve) => { const dialogDiv = document.getElementById('dialogBox'); const msgDiv = document.getElementById('dialogMessage'); const inputArea = document.getElementById('dialogInputArea'); dialogDiv.classList.remove('hidden'); inputArea.innerHTML = ''; await typeWriterWithSkip(msgDiv, text, 42); if (autoClose) { setTimeout(() => { dialogDiv.classList.add('hidden'); resolve(); }, duration); } else { const btn = document.createElement('button'); btn.textContent = "➡️"; btn.className = "dialog-btn"; btn.onclick = () => { dialogDiv.classList.add('hidden'); resolve(); }; inputArea.appendChild(btn); } }); }
-    function showChoice(message, onYes, onNo) { return new Promise(async (resolve) => { const dialogDiv = document.getElementById('dialogBox'); const msgDiv = document.getElementById('dialogMessage'); const inputArea = document.getElementById('dialogInputArea'); dialogDiv.classList.remove('hidden'); inputArea.innerHTML = ''; await typeWriterWithSkip(msgDiv, message, 42); const yesBtn = document.createElement('button'); yesBtn.textContent = "SÍ"; yesBtn.className = "dialog-btn"; const noBtn = document.createElement('button'); noBtn.textContent = "NO"; noBtn.className = "dialog-btn"; inputArea.appendChild(yesBtn); inputArea.appendChild(noBtn); yesBtn.onclick = () => { dialogDiv.classList.add('hidden'); onYes(); resolve(); }; noBtn.onclick = () => { dialogDiv.classList.add('hidden'); onNo(); resolve(); }; }); }
+    let dialogResolve = null;
+    
+    function showDialogMessage(text, autoClose = false, duration = 1500) {
+        return new Promise(async (resolve) => {
+            if (dialogResolve) return;
+            dialogResolve = resolve;
+            const dialogDiv = document.getElementById('dialogBox');
+            const msgDiv = document.getElementById('dialogMessage');
+            const inputArea = document.getElementById('dialogInputArea');
+            dialogDiv.classList.remove('hidden');
+            inputArea.innerHTML = '';
+            await typeText(msgDiv, text, 42);
+            if (autoClose) {
+                setTimeout(() => {
+                    dialogDiv.classList.add('hidden');
+                    dialogResolve = null;
+                    resolve();
+                }, duration);
+            } else {
+                const btn = document.createElement('button');
+                btn.textContent = "➡️";
+                btn.className = "dialog-btn";
+                btn.onclick = () => {
+                    dialogDiv.classList.add('hidden');
+                    dialogResolve = null;
+                    resolve();
+                };
+                inputArea.appendChild(btn);
+            }
+        });
+    }
+    
+    function showChoice(message, onYes, onNo) {
+        return new Promise(async (resolve) => {
+            const dialogDiv = document.getElementById('dialogBox');
+            const msgDiv = document.getElementById('dialogMessage');
+            const inputArea = document.getElementById('dialogInputArea');
+            dialogDiv.classList.remove('hidden');
+            inputArea.innerHTML = '';
+            await typeText(msgDiv, message, 42);
+            const yesBtn = document.createElement('button');
+            yesBtn.textContent = "SÍ";
+            yesBtn.className = "dialog-btn";
+            const noBtn = document.createElement('button');
+            noBtn.textContent = "NO";
+            noBtn.className = "dialog-btn";
+            inputArea.appendChild(yesBtn);
+            inputArea.appendChild(noBtn);
+            yesBtn.onclick = () => {
+                dialogDiv.classList.add('hidden');
+                onYes();
+                resolve();
+            };
+            noBtn.onclick = () => {
+                dialogDiv.classList.add('hidden');
+                onNo();
+                resolve();
+            };
+        });
+    }
     
     // ==================== CANVAS ====================
     const canvas = document.getElementById('gameCanvas');
@@ -297,6 +390,7 @@
     let entidades = [];
     let corriendoAutomatico = false;
     let velocidadCorrer = 9;
+    let fogataExplotada = false;
     
     let fogata = { x: 1120, y: 940, exploded: false };
     let bushes = [{ x: 1000, y: 850, w: 60, h: 40 }, { x: 1300, y: 950, w: 55, h: 38 }, { x: 850, y: 1020, w: 65, h: 42 }];
@@ -374,7 +468,6 @@
     async function mostrarAnimales() {
         historiaState = "mostrando_animales";
         cinematicMode = true;
-        for (let i = 0; i < 50; i++) { frame++; await new Promise(r => setTimeout(r, 100)); }
         await new Promise(r => setTimeout(r, 5000));
         historiaState = "serpientes";
         cinematicMode = false;
@@ -386,6 +479,8 @@
         for (let i = 0; i < 20; i++) { player.x += (1150 - player.x) / 20; player.y += (960 - player.y) / 20; companion.x = player.x - 35; companion.y = player.y; updateCamera(); await new Promise(r => setTimeout(r, 25)); }
         cinematicMode = false;
         
+        musicPlayer.play("fogata.mp3", true);
+        
         await showDialogMessage("Ven. Hagamos tu primera fogata.", true, 1800);
         await showDialogMessage("*Encienden una fogata hermosa*", true, 2000);
         await showDialogMessage("Que bonito.", true, 1500);
@@ -393,6 +488,7 @@
         
         await showChoice("🔥 HAZ CLICK PARA APAGAR LA FOGATA 🔥", async () => {}, async () => {});
         
+        musicPlayer.stop();
         await cinematicBlurOut();
         fogata.exploded = true;
         await showDialogMessage("¡La explosión te deja inconsciente...!", true, 2000);
@@ -407,7 +503,6 @@
         await showDialogMessage("Esa fogata no salió tan bien.", true, 1500);
         await showDialogMessage("Lo haremos mañana.", true, 1300);
         
-        // SECUENCIA CORRECTA: Primero ESCONDETE, luego aparecen serpientes
         await showDialogMessage("¡ESCONDETE!", true, 1500);
         
         historiaState = "serpientes_visibles";
@@ -417,7 +512,6 @@
         entidades = [];
         
         await showDialogMessage("¡CORRE!", true, 1200);
-        
         await secuenciaPersecucion();
     }
     
@@ -426,21 +520,20 @@
         let escapeExitoso = false;
         const frases = ["Presiona CORRER para correr más rápido", "¡MÁS RAPIDO!", "¡COMO SI NO HUBIERA UN MAÑANA!", "¡NO TE RINDAS!", "¡MÁS AHHH!"];
         
+        musicPlayer.play("persecusion.mp3", true);
+        
         do {
             atrapado = false;
-            
-            // INICIO DE CARRERA AUTOMÁTICA
             corriendoAutomatico = true;
             playerAnim.running = true;
             playerAnim.runProgress = 0;
             cinematicMode = true;
             
-            // Bucle de carrera continua
             let carreraActiva = true;
             let indiceFrase = 0;
+            velocidadCorrer = 9;
             
             while (carreraActiva && !escapeExitoso && !atrapado) {
-                // Movimiento automático continuo
                 for (let s = 0; s < 10; s++) {
                     playerAnim.runProgress = (playerAnim.runProgress + 0.05) % 1;
                     player.x += velocidadCorrer;
@@ -450,7 +543,6 @@
                     await new Promise(r => setTimeout(r, 20));
                 }
                 
-                // Mostrar siguiente mensaje con opciones
                 if (indiceFrase < frases.length) {
                     let cancelado = false;
                     await new Promise(async (resolve) => {
@@ -459,7 +551,7 @@
                         const inputArea = document.getElementById('dialogInputArea');
                         dialogDiv.classList.remove('hidden');
                         inputArea.innerHTML = '';
-                        await typeWriterWithSkip(msgDiv, frases[indiceFrase], 45);
+                        await typeText(msgDiv, frases[indiceFrase], 45);
                         const okBtn = document.createElement('button'); okBtn.textContent = "🏃 CORRER 🏃"; okBtn.className = "dialog-btn";
                         const cancelBtn = document.createElement('button'); cancelBtn.textContent = "✋ RENDIRSE"; cancelBtn.className = "dialog-btn";
                         inputArea.appendChild(okBtn); inputArea.appendChild(cancelBtn);
@@ -473,7 +565,6 @@
                         break;
                     }
                     
-                    // Acelerar al presionar CORRER
                     velocidadCorrer += 2;
                     if (velocidadCorrer > 25) velocidadCorrer = 25;
                     indiceFrase++;
@@ -489,6 +580,7 @@
             cinematicMode = false;
             
             if (atrapado) {
+                musicPlayer.stop();
                 await cinematicBlurOut();
                 await showDialogMessage("Te atrapan y quedas mu3rt0...", true, 1800);
                 let reintentar = false;
@@ -496,11 +588,12 @@
                 if (!reintentar) { await showDialogMessage("No continuar.", true, 1500); await regresarMenu(); return; }
                 await cinematicBlurIn();
                 player.x = 1150; player.y = 960; companion.x = player.x - 35; companion.y = player.y; updateCamera();
-                velocidadCorrer = 9;
+                musicPlayer.play("persecusion.mp3", true);
             }
         } while (!escapeExitoso);
         
-        // ANIMACIÓN DE CAÍDA
+        musicPlayer.stop();
+        
         playerAnim.falling = true;
         playerAnim.fallProgress = 0;
         cinematicMode = true;
@@ -542,7 +635,6 @@
         playerAnim.running = false;
         playerAnim.falling = false;
         corriendoAutomatico = false;
-        velocidadCorrer = 9;
         musicPlayer.stop();
     }
     
@@ -586,7 +678,7 @@
     }
     
     async function startTitleSequence() {
-        musicPlayer.play("https://cdn.pixabay.com/download/audio/2022/03/10/audio_nombre.mp3", true);
+        musicPlayer.play("nombre.mp3", true);
         const titleScreen = document.getElementById('titleScreen');
         const titlePrompt = document.getElementById('titlePrompt');
         const nameInput = document.getElementById('nameInput');
